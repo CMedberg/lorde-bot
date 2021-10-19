@@ -1,29 +1,13 @@
 import { Player, Queue } from '../Player.js'
+import { validateInteraction } from '../helpers.js'
 
 const execute = async interaction => {
   try {
-    if (!interaction.member || !interaction.member.voice.channel) {
-      return await interaction.reply({
-        content: 'You are not in a voice channel!',
-        ephemeral: true,
-      })
-    }
-    if (
-      interaction.guild.me.voice.channelId &&
-      interaction.member.voice.channelId !==
-        interaction.guild.me.voice.channelId
-    ) {
-      return await interaction.reply({
-        content: 'You are not in my voice channel!',
-        ephemeral: true,
-      })
-    }
-
     if (Queue.length > 0) {
       Queue.length = 0
     }
 
-    Player.stop()
+    validateInteraction(interaction, () => Player.stop())
 
     return interaction.reply({ content: '🛑 | Stopped the player' })
   } catch (error) {

@@ -56,9 +56,8 @@ export const init = () => {
     console.log('Player is Buffering', Queue)
     isPlaying = false
   })
-
   Player.on('error', error => {
     console.error(error.message)
-    player.play(getNextResource())
+    Player.play(getNextResource())
   })
 }

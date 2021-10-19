@@ -1,7 +1,7 @@
 import { joinVoiceChannel, createAudioResource } from '@discordjs/voice'
 import ytdl from 'ytdl-core'
 import { Player } from '../Player.js'
-import { searchVideo, getVideoInfo } from '../helpers.js'
+import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
 import config from '../../config.js'
 
 const playSong = async interaction => {
@@ -31,25 +31,9 @@ const playSong = async interaction => {
   await interaction.reply(playMessage)
 }
 
-const execute = async (interaction, client, queue) => {
+const execute = async interaction => {
   try {
-    if (!interaction.member || !interaction.member.voice.channel) {
-      return await interaction.reply({
-        content: 'You are not in a voice channel!',
-        ephemeral: true,
-      })
-    }
-    if (
-      interaction.guild.me.voice.channelId &&
-      interaction.member.voice.channelId !==
-        interaction.guild.me.voice.channelId
-    ) {
-      return await interaction.reply({
-        content: 'You are not in my voice channel!',
-        ephemeral: true,
-      })
-    }
-    playSong(interaction)
+    validateInteraction(interaction, () => playSong(interaction))
   } catch (error) {
     console.log(error)
     interaction.reply({
