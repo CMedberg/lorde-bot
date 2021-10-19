@@ -1,5 +1,28 @@
+import { client } from '../../index.js'
+
 const execute = async interaction => {
   const deleteCount = interaction.options.get('num').value
+
+  if (deleteCount === 1337) {
+    console.log('1337', client.user.id)
+    interaction.channel.messages
+      .fetch({ limit: 100 })
+      .then(messages => {
+        const filtered = messages.filter(message => message.author.id === client.user.id)
+        filtered.map(message => interaction.channel.messages.delete(message))
+        interaction.reply({
+          content: `Succesfully deleted messages`,
+          ephemeral: true,
+        })
+      })
+      .catch(error => {
+        interaction.reply({
+          content: `Couldn't delete messages because of: ${error}`,
+          ephemeral: true,
+        })
+      })
+    return
+  }
 
   if (!deleteCount || deleteCount < 2 || deleteCount > 100) {
     return interaction.reply({

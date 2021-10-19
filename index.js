@@ -4,7 +4,7 @@ import commands from './src/commands/index.js'
 import config from './config.js'
 const { token } = config
 
-const client = await new Client({
+export const client = await new Client({
   intents: [
     Intents.FLAGS.GUILD_VOICE_STATES,
     Intents.FLAGS.GUILD_MESSAGES,
@@ -61,3 +61,4 @@ client.on('interactionCreate', async interaction => {
 
 await client.login(token)
 client.user.setActivity({ name: config.activity, type: config.activityType })
+console.log('Bot ID ' + client.user.id)
