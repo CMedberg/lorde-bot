@@ -4,7 +4,7 @@ import commands from './src/commands/index.js'
 import config from './config.js'
 const { token } = config
 
-const client = new Client({
+const client = await new Client({
   intents: [
     Intents.FLAGS.GUILD_VOICE_STATES,
     Intents.FLAGS.GUILD_MESSAGES,
@@ -59,4 +59,5 @@ client.on('interactionCreate', async interaction => {
   }
 })
 
-client.login(token)
+await client.login(token)
+client.user.setActivity({ name: config.activity, type: config.activityType })
