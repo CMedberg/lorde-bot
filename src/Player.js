@@ -12,6 +12,16 @@ export let isPaused = false
 export let Player = {}
 export let Queue = []
 
+const playSong = () => {
+  const audioStream = ytdl(config.yt_generic + Queue[0].id.videoId, {
+    filter: 'audioonly',
+    opusEncoded: false,
+    fmt: 'mp3',
+    encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
+  })
+  Player.play(createAudioResource(audioStream))
+}
+
 export const init = () => {
   Player = createAudioPlayer({
     behaviors: {
@@ -20,24 +30,14 @@ export const init = () => {
   })
   Player.on(AudioPlayerStatus.Playing, () => {
     console.log('Player began to Play', Queue)
-
-    if (Queue.length > 0 && !isPaused) {
-      Queue.shift()
-    }
-
     isPlaying = true
     isPaused = false
   })
   Player.on(AudioPlayerStatus.Idle, () => {
     console.log('Player went Idle', Queue)
     if (Queue.length > 0) {
-      const audioStream = ytdl(config.yt_generic + Queue[0].id.videoId, {
-        filter: 'audioonly',
-        opusEncoded: false,
-        fmt: 'mp3',
-        encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
-      })
-      Player.play(createAudioResource(audioStream))
+      playSong(Queue[0])
+      Queue.shift()
     }
     isPlaying = false
     isPaused = false
