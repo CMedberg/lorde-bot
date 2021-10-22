@@ -1,10 +1,8 @@
-import { joinVoiceChannel, createAudioResource } from '@discordjs/voice'
-import ytdl from 'ytdl-core'
-import { Player } from '../Player.js'
+import { joinVoiceChannel } from '@discordjs/voice'
+import { Player, playSong } from '../Player.js'
 import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
-import config from '../../config.js'
 
-const playSong = async interaction => {
+const play = async interaction => {
   const video = await searchVideo(interaction)
   console.log('videoId', video.id.videoId)
 
@@ -15,14 +13,7 @@ const playSong = async interaction => {
     adapterCreator: voiceChannel.guild.voiceAdapterCreator,
   })
 
-  const audioStream = ytdl(config.yt_generic + video.id.videoId, {
-    filter: 'audioonly',
-    opusEncoded: false,
-    fmt: 'mp3',
-    encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
-  })
-
-  Player.play(createAudioResource(audioStream))
+  playSong(video)
   connection.subscribe(Player)
 
   const playMessage = `▶ | Started playing: **${await getVideoInfo(
@@ -33,7 +24,7 @@ const playSong = async interaction => {
 
 const execute = async interaction => {
   try {
-    validateInteraction(interaction, () => playSong(interaction))
+    validateInteraction(interaction, () => play(interaction))
   } catch (error) {
     console.log(error)
     interaction.reply({

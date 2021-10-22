@@ -1,23 +1,16 @@
-import { Player, Queue } from '../Player.js'
-import { createAudioResource } from '@discordjs/voice'
+import { Queue, playSong } from '../Player.js'
 import { getVideoInfo, validateInteraction } from '../helpers.js'
-import ytdl from 'ytdl-core'
-import config from '../../config.js'
 
 const execute = async interaction => {
   try {
     validateInteraction(interaction, async () => {
-      if (Queue.length > 0) {
-        const audioStream = ytdl(config.yt_generic + Queue[0].id.videoId, {
-          filter: 'audioonly',
-          opusEncoded: false,
-          fmt: 'mp3',
-          encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
-        })
+      const nextSong = Queue.shift()
 
-        Player.play(createAudioResource(audioStream))
+      if (nextSong) {
+        playSong(nextSong)
+
         return interaction.reply({
-          content: `⏩ | Next track ${await getVideoInfo(Queue[0])}`,
+          content: `⏩ | Next track ${await getVideoInfo(nextSong)}`,
         })
       } else {
         return interaction.reply({ content: `🛑 | End of the line` })

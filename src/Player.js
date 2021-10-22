@@ -12,8 +12,8 @@ export let isPaused = false
 export let Player = {}
 export let Queue = []
 
-const playSong = () => {
-  const audioStream = ytdl(config.yt_generic + Queue[0].id.videoId, {
+export const playSong = track => {
+  const audioStream = ytdl(config.yt_generic + track.id.videoId, {
     filter: 'audioonly',
     opusEncoded: false,
     fmt: 'mp3',
