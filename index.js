@@ -46,11 +46,6 @@ client.on('interactionCreate', async interaction => {
 
   try {
     command.execute(interaction, client)
-    // if (interaction.commandName == 'ban' || interaction.commandName == 'userinfo') {
-    //   command.execute(interaction, client)
-    // } else {
-    //   command.execute(interaction, player)
-    // }
   } catch (error) {
     console.error(error)
     interaction.reply({
