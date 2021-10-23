@@ -6,6 +6,7 @@ const execute = async interaction => {
     validateInteraction(interaction, async () => {
       if (Queue.length <= 0) {
         await interaction.reply('```And nobody came...```')
+        return
       }
 
       const queue = await Promise.all(
