@@ -1,5 +1,6 @@
 import { isPlaying, Queue } from '../Player.js'
-import { searchVideo, getVideoInfo, validateInteraction, play } from '../helpers.js'
+import { play } from './play.js'
+import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
 
 const execute = async interaction => {
   try {
