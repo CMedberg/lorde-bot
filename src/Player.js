@@ -16,6 +16,7 @@ export const playSong = track => {
   const audioStream = ytdl(config.yt_generic + track.id.videoId, {
     quality: 'highestaudio',
     filter: 'audioonly',
+    highWaterMark: 'high',
     opusEncoded: true,
     fmt: 'mp3',
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
