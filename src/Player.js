@@ -18,7 +18,7 @@ export const playSong = track => {
     opusEncoded: true,
     fmt: 'mp3',
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
-    dlChunkSize: 0
+    dlChunkSize: 0,
   })
   Player.play(createAudioResource(audioStream))
 }
@@ -59,6 +59,10 @@ export const init = () => {
   })
   Player.on('error', error => {
     console.error(error.message)
-    Player.play(getNextResource())
+    if (Queue[0]) {
+      playSong(Queue.shift())
+    } else {
+      return interaction.reply({ content: `🛑 | End of the line` })
+    }
   })
 }
