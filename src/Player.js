@@ -18,6 +18,7 @@ export const playSong = track => {
     opusEncoded: true,
     fmt: 'mp3',
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
+    dlChunkSize: 0
   })
   Player.play(createAudioResource(audioStream))
 }
