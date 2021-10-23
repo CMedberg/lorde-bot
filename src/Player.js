@@ -21,7 +21,21 @@ export const playSong = track => {
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
     dlChunkSize: 0,
   })
+
   Player.play(createAudioResource(audioStream))
+
+  // This is removing the listener and creating our own. Potentially a fix for the bot stopping
+  // Se: https://github.com/fent/node-ytdl-core/issues/932
+  const funcao = audioStream.listeners('error')[0]
+  audioStream.removeListener('error', funcao)
+  audioStream.on('error', err => {
+    try {
+      throw new Error()
+    } catch {
+      audioStream.destroy()
+      console.log(err)
+    }
+  })
 }
 
 export const init = () => {
@@ -58,10 +72,10 @@ export const init = () => {
     console.log('Player is Buffering', Queue)
     isPlaying = false
   })
-  // Player.on('error', error => {
-  //   console.error(error.message)
-  //   if (Queue[0]) {
-  //     playSong(Queue.shift())
-  //   }
-  // })
+  Player.on('error', error => {
+    console.error(error.message)
+    if (Queue[0]) {
+      playSong(Queue.shift())
+    }
+  })
 }
