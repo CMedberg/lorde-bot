@@ -14,6 +14,7 @@ export let Queue = []
 
 export const playSong = track => {
   const audioStream = ytdl(config.yt_generic + track.id.videoId, {
+    quality: 'highestaudio',
     filter: 'audioonly',
     opusEncoded: true,
     fmt: 'mp3',
@@ -57,12 +58,10 @@ export const init = () => {
     console.log('Player is Buffering', Queue)
     isPlaying = false
   })
-  Player.on('error', error => {
-    console.error(error.message)
-    if (Queue[0]) {
-      playSong(Queue.shift())
-    } else {
-      return interaction.reply({ content: `🛑 | End of the line` })
-    }
-  })
+  // Player.on('error', error => {
+  //   console.error(error.message)
+  //   if (Queue[0]) {
+  //     playSong(Queue.shift())
+  //   }
+  // })
 }
