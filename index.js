@@ -4,6 +4,8 @@ import commands from './src/commands/index.js'
 import config from './config.js'
 const { token } = config
 
+// https://discord.com/oauth2/authorize?client_id=898629597745258497&permissions=105229920256&scope=bot%20applications.commands
+
 export const client = await new Client({
   intents: [
     Intents.FLAGS.GUILD_VOICE_STATES,
@@ -21,7 +23,7 @@ console.log(client.commands)
 InitPlayer()
 
 client.on('messageCreate', async message => {
-  if (message.author.bot || !message.guild) return
+  // if (message.author.bot || !message.guild) return
   if (!client.application?.owner) await client.application?.fetch()
   if (
     message.content === '!deploy' &&
