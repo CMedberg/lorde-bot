@@ -2,7 +2,7 @@ import { joinVoiceChannel } from '@discordjs/voice'
 import { Player, playSong } from '../Player.js'
 import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
 
-const play = async interaction => {
+export const play = async interaction => {
   const video = await searchVideo(interaction)
   console.log('videoId', video.id.videoId)
 

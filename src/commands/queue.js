@@ -1,5 +1,5 @@
 import { isPlaying, Queue } from '../Player.js'
-import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
+import { searchVideo, getVideoInfo, validateInteraction, play } from '../helpers.js'
 
 const execute = async interaction => {
   try {
@@ -16,10 +16,7 @@ const execute = async interaction => {
           content: queueMessage,
         })
       } else {
-        interaction.reply({
-          content: 'The player is NOT playing',
-          ephemeral: true,
-        })
+        play(interaction)
       }
     })
   } catch (error) {
