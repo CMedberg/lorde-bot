@@ -15,7 +15,7 @@ export let Queue = []
 export const playSong = track => {
   const audioStream = ytdl(config.yt_generic + track.id.videoId, {
     filter: 'audioonly',
-    opusEncoded: false,
+    opusEncoded: true,
     fmt: 'mp3',
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
   })
