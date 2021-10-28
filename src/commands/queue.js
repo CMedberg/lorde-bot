@@ -4,14 +4,14 @@ import {
   searchVideo,
   getVideoInfo,
   validateInteraction,
-  getSpotifyList,
+  getSpotifyPlaylist,
 } from '../helpers.js'
 
 const execute = async interaction => {
   try {
     validateInteraction(interaction, async () => {
       const query = interaction.options.get('query').value || 'Default query'
-      const spotifyList = getSpotifyList(query)
+      const spotifyList = getSpotifyPlaylist(query)
 
       if (isPlaying) {
         if (spotifyList) {
