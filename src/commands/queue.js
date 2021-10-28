@@ -1,21 +1,36 @@
 import { isPlaying, Queue } from '../Player.js'
 import { play } from './play.js'
-import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
+import {
+  searchVideo,
+  getVideoInfo,
+  validateInteraction,
+  getSpotifyList,
+} from '../helpers.js'
 
 const execute = async interaction => {
   try {
     validateInteraction(interaction, async () => {
-      if (isPlaying) {
-        const video = await searchVideo(interaction)
-        Queue.push(video)
-        const queueMessage = `🎶 | **${
-          interaction.member.displayName
-        }** is queueing: **${await getVideoInfo(video)}**`
-        console.log('Queueing', Queue)
+      const query = interaction.options.get('query').value || 'Default query'
+      const spotifyList = getSpotifyList(query)
 
-        interaction.reply({
-          content: queueMessage,
-        })
+      if (isPlaying) {
+        if (spotifyList) {
+          spotifyList.map(async track => {
+            const video = await searchVideo(track)
+            Queue.push(video)
+          })
+          interaction.reply({
+            content: `🎶 | **${interaction.member.displayName}** is queueing: **${spotifyList.length}** songs`,
+          })
+        } else {
+          const video = await searchVideo(query)
+          Queue.push(video)
+          interaction.reply({
+            content: `🎶 | **${
+              interaction.member.displayName
+            }** is queueing: **${await getVideoInfo(video)}**`,
+          })
+        }
       } else {
         play(interaction)
       }

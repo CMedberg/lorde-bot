@@ -1,11 +1,64 @@
 import axios from 'axios'
 import ytdl from 'ytdl-core'
 import config from '../config.js'
-const { yt_uri, yt_api_key } = config
+const { yt_uri, yt_api_key, spotify_client_id, spotify_client_secret } = config
+import qs from 'qs'
 
-export const searchVideo = async interaction => {
-  const query = interaction.options.get('query').value || 'Default query'
+const getSpotifyToken = async () => {
+  try {
+    return await axios
+      .post(
+        'https://accounts.spotify.com/api/token',
+        qs.stringify({
+          grant_type: 'client_credentials',
+        }),
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(
+              `${spotify_client_id}:${spotify_client_secret}`
+            ).toString('base64')}`,
+          },
+        }
+      )
+      .then(res => {
+        return res.data.access_token
+      })
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+export const getSpotifyPlaylist = async query => {
+  const spotifyListId = query.replace(
+    /https.+spotify.com\/playlist\/(.+?)[\?|\/].+/,
+    '$1'
+  )
+
+  if (!spotifyListId) {
+    return
+  }
+
+  try {
+    return await axios
+      .get(
+        `${spotify_uri}${spotifyListId}?fields=tracks.items(track(name%2C%20artists.name))`,
+        {
+          headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
+        }
+      )
+      .then(async res => {
+        return res.data.tracks.items.map(
+          ({ track }) => `${track.artists[0].name} ${track.name}`
+        )
+      })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const searchVideo = async query => {
   console.log('Query', query)
   // prettier-ignore
   const defaultUrl = `${yt_uri}${encodeURIComponent('nowhere fast fire inc')}&key=${yt_api_key}`

@@ -25,21 +25,6 @@ export const playSong = track => {
 
   Player.play(createAudioResource(audioStream))
 
-  // This is removing the listener and creating our own. Potentially a fix for the bot stopping
-  // Se: https://github.com/fent/node-ytdl-core/issues/932
-
-  // Getting this after fix
-  //   Error: aborted
-  //      0|randy    |     at connResetException (node:internal/errors:691:14)
-  //      0|randy    |     at TLSSocket.socketCloseListener (node:_http_client:407:19)
-  //      0|randy    |     at TLSSocket.emit (node:events:402:35)
-  //      0|randy    |     at node:net:687:12
-  //      0|randy    |     at TCP.done (node:_tls_wrap:580:7) {
-  //      0|randy    |   code: 'ECONNRESET'
-  //      0|randy    | }
-
-  // or this??? https://github.com/fent/node-ytdl-core/issues/902
-
   const funcao = audioStream.listeners('error')[0]
   audioStream.removeListener('error', funcao)
   audioStream.on('error', err => {

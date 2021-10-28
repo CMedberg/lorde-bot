@@ -3,7 +3,8 @@ import { Player, playSong } from '../Player.js'
 import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
 
 export const play = async interaction => {
-  const video = await searchVideo(interaction)
+  const query = interaction.options.get('query').value || 'Default query'
+  const video = await searchVideo(query)
   console.log('videoId', video.id.videoId)
 
   const voiceChannel = interaction.member.voice.channel
