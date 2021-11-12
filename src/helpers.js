@@ -75,7 +75,7 @@ export const getYoutubePlaylist = async query => {
   }
 }
 
-export const getSpotifySong = query => {
+export const getSpotifySong = async query => {
   const spotifyId = query.replace(
     /.+open.spotify.com\/track\/(.+)\?si=.+/,
     '$1'
