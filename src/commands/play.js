@@ -1,11 +1,9 @@
 import { joinVoiceChannel } from '@discordjs/voice'
 import { Player, playSong } from '../Player.js'
-import { searchVideo, getVideoInfo, validateInteraction } from '../helpers.js'
+import { searchVideo, getVideoInfo, validateInteraction, getSongs } from '../helpers.js'
 
 export const play = async interaction => {
-  const query = interaction.options.get('query').value || 'Default query'
-  const video = await searchVideo(query)
-  console.log('videoId', video.id.videoId)
+  const songs = getSongs(interaction)
 
   const voiceChannel = interaction.member.voice.channel
   const connection = joinVoiceChannel({
@@ -14,7 +12,13 @@ export const play = async interaction => {
     adapterCreator: voiceChannel.guild.voiceAdapterCreator,
   })
 
-  playSong(video)
+  songs.map(async song => {
+    const video = await searchVideo(song)
+    Queue.push(video)
+  })
+
+  playSong(Queue.shift())
+
   connection.subscribe(Player)
 
   const playMessage = `▶ | Started playing: **${await getVideoInfo(

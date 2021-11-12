@@ -1,7 +1,13 @@
 import axios from 'axios'
 import ytdl from 'ytdl-core'
 import config from '../config.js'
-const { yt_uri, yt_api_key, spotify_client_id, spotify_client_secret, spotify_uri } = config
+const {
+  yt_uri,
+  yt_api_key,
+  spotify_client_id,
+  spotify_client_secret,
+  spotify_uri,
+} = config
 import qs from 'qs'
 
 const getSpotifyToken = async () => {
@@ -30,20 +36,75 @@ const getSpotifyToken = async () => {
   }
 }
 
+export const getSongs = interaction => {
+  const query = interaction.options.get('query').value || 'Default query'
+
+  const spotifyPlaylist = await getSpotifyPlaylist(query)
+  if (spotifyPlaylist) return spotifyPlaylist
+
+  const spotifySong = await getSpotifySong(query)
+  if (spotifySong) return spotifySong
+
+  const youtubePlaylist = getYoutubePlaylist(query)
+  if (youtubePlaylist) return youtubePlaylist
+
+  const youtubeSong = searchVideo(query)
+  if (youtubeSong) return youtubeSong
+
+  return 'Fire inc Nowhere fast'
+}
+
+export const getYoutubePlaylist = async query => {
+  const youtubeListId = query.replace(
+    /.+youtube.com\/watch\?v=.+&list=(.+)/,
+    '$1'
+  )
+
+  if (!youtubeListId) return
+
+  try {
+    return await axios
+      .get(
+        `${yt_uri}playlistItems?part=snippet%2CcontentDetails&maxResults=25&playlistId=${youtubeListId}&key=${yt_api_key}`
+      )
+      .then(async res => {
+        return res.data.items.map(({ video }) => video.snippet.title)
+      })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getSpotifySong = query => {
+  const spotifyId = query.replace(
+    /.+open.spotify.com\/track\/(.+)\?si=.+/,
+    '$1'
+  )
+  if (!spotifyId) return
+
+  try {
+    return await axios
+      .get(`${spotify_uri}/tracks${spotifyId}`, {
+        headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
+      })
+      .then(async ({ data }) => `${data.artists.name} ${data.name}`)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const getSpotifyPlaylist = async query => {
   const spotifyListId = query.replace(
     /https.+spotify.com\/playlist\/(.+?)[\?|\/].+/,
     '$1'
   )
 
-  if (!spotifyListId) {
-    return
-  }
+  if (!spotifyListId) return
 
   try {
     return await axios
       .get(
-        `${spotify_uri}${spotifyListId}?fields=tracks.items(track(name%2C%20artists.name))`,
+        `${spotify_uri}playlists/${spotifyListId}?fields=tracks.items(track(name%2C%20artists.name))`,
         {
           headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
         }
@@ -62,7 +123,9 @@ export const searchVideo = async query => {
   console.log('Query', query)
   // prettier-ignore
   const defaultUrl = `${yt_uri}${encodeURIComponent('nowhere fast fire inc')}&key=${yt_api_key}`
-  const url = `${yt_uri}${encodeURIComponent(query)}&key=${yt_api_key}`
+  const url = `${yt_uri}search?part=id&type=video&q=${encodeURIComponent(
+    query
+  )}&key=${yt_api_key}`
 
   return await axios.get(url).then(async res => {
     if (!res.data.items[0]) {
