@@ -1,7 +1,7 @@
 import axios from 'axios'
 import ytdl from 'ytdl-core'
 import config from '../config.js'
-const { yt_uri, yt_api_key, spotify_client_id, spotify_client_secret } = config
+const { yt_uri, yt_api_key, spotify_client_id, spotify_client_secret, spotify_uri } = config
 import qs from 'qs'
 
 const getSpotifyToken = async () => {
