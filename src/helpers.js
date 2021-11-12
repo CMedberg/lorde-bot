@@ -36,7 +36,7 @@ const getSpotifyToken = async () => {
   }
 }
 
-export const getSongs = interaction => {
+export const getSongs = async interaction => {
   const query = interaction.options.get('query').value || 'Default query'
 
   const spotifyPlaylist = await getSpotifyPlaylist(query)
