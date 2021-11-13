@@ -1,65 +1,28 @@
 import { isPlaying, Queue, playSong } from '../Player.js'
 import { play } from './play.js'
-import {
-  searchVideo,
-  getVideoInfo,
-  validateInteraction,
-  getSpotifyPlaylist,
-} from '../helpers.js'
+import { searchVideo, validateInteraction, getSongs } from '../helpers.js'
+
+const queue = async interaction => {
+  const songs = await getSongs(interaction)
+  await Promise.all(
+    songs.map(async song => Queue.push(await searchVideo(song)))
+  )
+
+  if (!isPlaying) {
+    playSong(interaction, Queue.shift())
+    return
+  }
+
+  interaction.reply({
+    content: `🎶 | **${interaction.member.displayName}** is queueing: **${
+      songs.length
+    }** songs`,
+  })
+}
 
 const execute = async interaction => {
   try {
-    validateInteraction(interaction, async () => {
-      const query = interaction.options.get('query').value || 'Default query'
-      const spotifyList = await getSpotifyPlaylist(query)
-
-      if (!isPlaying && !spotifyList) play(interaction)
-
-      if (!isPlaying && spotifyList) {
-        const video = await searchVideo(spotifyList.shift())
-        const voiceChannel = interaction.member.voice.channel
-        const connection = joinVoiceChannel({
-          channelId: voiceChannel.id,
-          guildId: voiceChannel.guild.id,
-          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        })
-
-        playSong(video)
-        connection.subscribe(Player)
-
-        spotifyList.map(async track => {
-          const video = await searchVideo(track)
-          Queue.push(video)
-        })
-        interaction.reply({
-          content: `🎶 | **${interaction.member.displayName}** is queueing: **${
-            spotifyList.length + 1
-          }** songs`,
-        })
-      }
-
-      if (isPlaying && spotifyList) {
-        spotifyList.map(async track => {
-          const video = await searchVideo(track)
-          Queue.push(video)
-        })
-        interaction.reply({
-          content: `🎶 | **${interaction.member.displayName}** is queueing: **${
-            spotifyList.length + 1
-          }** songs`,
-        })
-      }
-
-      if (isPlaying && !spotifyList) {
-        const video = await searchVideo(query)
-        Queue.push(video)
-        interaction.reply({
-          content: `🎶 | **${
-            interaction.member.displayName
-          }** is queueing: **${await getVideoInfo(video)}**`,
-        })
-      }
-    })
+    validateInteraction(interaction, () => queue(interaction))
   } catch (error) {
     console.log(error)
     interaction.reply({

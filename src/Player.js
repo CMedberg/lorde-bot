@@ -3,8 +3,10 @@ import {
   NoSubscriberBehavior,
   AudioPlayerStatus,
   createAudioResource,
+  joinVoiceChannel
 } from '@discordjs/voice'
 import ytdl from 'ytdl-core'
+import {getVideoInfo} from './helpers.js'
 import config from '../config.js'
 
 export let isPlaying = false
@@ -12,7 +14,24 @@ export let isPaused = false
 export let Player = {}
 export let Queue = []
 
-export const playSong = track => {
+export const playSong = async (interaction, track) => {
+  console.log('playSong', track)
+  
+  // Creating channel connection
+  const voiceChannel = interaction.member.voice.channel
+  const connection = joinVoiceChannel({
+    channelId: voiceChannel.id,
+    guildId: voiceChannel.guild.id,
+    adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+  })
+  connection.subscribe(Player)
+  // Creating channel connection
+
+  const playMessage = `▶ | Started playing: **${await getVideoInfo(
+    track
+  )}** in **${voiceChannel.name}**!`
+  await interaction.reply(playMessage)
+
   const audioStream = ytdl(config.yt_generic + track.id.videoId, {
     quality: 'highestaudio',
     filter: 'audioonly',

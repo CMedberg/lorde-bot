@@ -7,7 +7,7 @@ const execute = async interaction => {
       const nextSong = Queue.shift()
 
       if (nextSong) {
-        playSong(nextSong)
+        playSong(interaction, nextSong)
 
         return interaction.reply({
           content: `⏩ | Next track ${await getVideoInfo(nextSong)}`,

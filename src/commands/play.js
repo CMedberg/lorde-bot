@@ -1,30 +1,12 @@
-import { joinVoiceChannel } from '@discordjs/voice'
-import { Player, playSong } from '../Player.js'
-import { searchVideo, getVideoInfo, validateInteraction, getSongs } from '../helpers.js'
+import { playSong, Queue } from '../Player.js'
+import { searchVideo, validateInteraction, getSongs } from '../helpers.js'
 
 export const play = async interaction => {
-  const songs = getSongs(interaction)
-
-  const voiceChannel = interaction.member.voice.channel
-  const connection = joinVoiceChannel({
-    channelId: voiceChannel.id,
-    guildId: voiceChannel.guild.id,
-    adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-  })
-
-  songs.map(async song => {
-    const video = await searchVideo(song)
-    Queue.push(video)
-  })
-
-  playSong(Queue.shift())
-
-  connection.subscribe(Player)
-
-  const playMessage = `▶ | Started playing: **${await getVideoInfo(
-    video
-  )}** in **${voiceChannel.name}**!`
-  await interaction.reply(playMessage)
+  const songs = await getSongs(interaction)
+  await Promise.all(
+    songs.map(async song => Queue.push(await searchVideo(song)))
+  )
+  playSong(interaction, Queue.shift())
 }
 
 const execute = async interaction => {

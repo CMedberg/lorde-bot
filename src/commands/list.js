@@ -4,13 +4,14 @@ import { getVideoInfo, validateInteraction } from '../helpers.js'
 const execute = async interaction => {
   try {
     validateInteraction(interaction, async () => {
-      if (Queue.length <= 0) {
+      if (Queue.length < 1) {
         await interaction.reply('```And nobody came...```')
         return
       }
 
-      const queue = await Promise.all(
-        Queue.map(async video => await getVideoInfo(video))
+      let queue = []
+      await Promise.all(
+        Queue.map(async video => queue.push(await getVideoInfo(video)))
       )
 
       const message = `

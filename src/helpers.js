@@ -40,64 +40,27 @@ export const getSongs = async interaction => {
   const query = interaction.options.get('query').value || 'Default query'
 
   const spotifyPlaylist = await getSpotifyPlaylist(query)
+  console.log('spotifyPlaylist', spotifyPlaylist)
   if (spotifyPlaylist) return spotifyPlaylist
 
   const spotifySong = await getSpotifySong(query)
+  console.log('spotifySong', spotifySong)
   if (spotifySong) return spotifySong
 
-  const youtubePlaylist = getYoutubePlaylist(query)
+  const youtubePlaylist = await getYoutubePlaylist(query)
+  console.log('youtubePlaylist', youtubePlaylist)
   if (youtubePlaylist) return youtubePlaylist
 
-  const youtubeSong = searchVideo(query)
-  if (youtubeSong) return youtubeSong
+  const youtubeSong = await searchVideo(query)
+  console.log('youtubeSong', youtubeSong)
+  if (youtubeSong) return [youtubeSong.id.videoId]
 
-  return 'Fire inc Nowhere fast'
-}
-
-export const getYoutubePlaylist = async query => {
-  const youtubeListId = query.replace(
-    /.+youtube.com\/watch\?v=.+&list=(.+)/,
-    '$1'
-  )
-
-  if (!youtubeListId) return
-
-  try {
-    return await axios
-      .get(
-        `${yt_uri}playlistItems?part=snippet%2CcontentDetails&maxResults=25&playlistId=${youtubeListId}&key=${yt_api_key}`
-      )
-      .then(async res => {
-        return res.data.items.map(({ video }) => video.snippet.title)
-      })
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-export const getSpotifySong = async query => {
-  const spotifyId = query.replace(
-    /.+open.spotify.com\/track\/(.+)\?si=.+/,
-    '$1'
-  )
-  if (!spotifyId) return
-
-  try {
-    return await axios
-      .get(`${spotify_uri}/tracks${spotifyId}`, {
-        headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
-      })
-      .then(async ({ data }) => `${data.artists.name} ${data.name}`)
-  } catch (error) {
-    console.log(error)
-  }
+  return ['Fire inc Nowhere fast']
 }
 
 export const getSpotifyPlaylist = async query => {
-  const spotifyListId = query.replace(
-    /https.+spotify.com\/playlist\/(.+?)[\?|\/].+/,
-    '$1'
-  )
+  const pattern = /https.+spotify.com\/playlist\/(.+?)[\?|\/].+/
+  const spotifyListId = query.match(pattern) ? query.replace(pattern, '$1') : ''
 
   if (!spotifyListId) return
 
@@ -119,20 +82,52 @@ export const getSpotifyPlaylist = async query => {
   }
 }
 
+export const getSpotifySong = async query => {
+  const pattern = /.+open.spotify.com\/track\/(.+)\?si=.+/
+  const spotifyId = query.match(pattern) ? query.replace(pattern, '$1') : ''
+  if (!spotifyId) return
+
+  try {
+    return await axios
+      .get(`${spotify_uri}tracks/${spotifyId}`, {
+        headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
+      })
+      .then(async ({ data }) => [`${data.artists[0].name} ${data.name}`])
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getYoutubePlaylist = async query => {
+  const pattern = /.+youtube.com\/watch\?v=.+&list=(.+)/
+  const youtubeListId = query.match(pattern) ? query.replace(pattern, '$1') : ''
+
+  if (!youtubeListId) return
+
+  console.log('youtubeListId', youtubeListId)
+
+  try {
+    return await axios
+      .get(
+        `${yt_uri}playlistItems?part=snippet%2CcontentDetails&maxResults=25&playlistId=${youtubeListId}&key=${yt_api_key}`
+      )
+      .then(async ({ data }) => {
+        return data.items.map(video => video.snippet.title)
+      })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const searchVideo = async query => {
-  console.log('Query', query)
-  // prettier-ignore
-  const defaultUrl = `${yt_uri}${encodeURIComponent('nowhere fast fire inc')}&key=${yt_api_key}`
+  console.log('searchQuery', query)
   const url = `${yt_uri}search?part=id&type=video&q=${encodeURIComponent(
     query
   )}&key=${yt_api_key}`
 
-  return await axios.get(url).then(async res => {
-    if (!res.data.items[0]) {
-      return await axios.get(defaultUrl).then(res => res.data.items[0])
-    } else {
-      return res.data.items[0]
-    }
+  return await axios.get(url).then(res => {
+    if (!res.data.items[0]) return
+    return res.data.items[0]
   })
 }
 
