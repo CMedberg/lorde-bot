@@ -4,7 +4,8 @@
   "description": "Discord bot",
   "main": "index.js",
   "scripts": {
-    "start": "node -r dotenv/config index.js",
+    "randy": "node -r dotenv/config index.js dotenv_config_path=env/.randy.env",
+    "ernst": "node -r dotenv/config index.js dotenv_config_path=env/.ernst.env",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
