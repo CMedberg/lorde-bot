@@ -1,5 +1,4 @@
 import { isPlaying, Queue, playSong } from '../Player.js'
-import { play } from './play.js'
 import { searchVideo, validateInteraction, getSongs } from '../helpers.js'
 
 const queue = async interaction => {
@@ -10,14 +9,11 @@ const queue = async interaction => {
 
   if (!isPlaying) {
     playSong(interaction, Queue.shift())
-    return
+  } else {
+    interaction.reply({
+      content: `🎶 | **${interaction.member.displayName}** is queueing: **${songs.length}** songs`,
+    })
   }
-
-  interaction.reply({
-    content: `🎶 | **${interaction.member.displayName}** is queueing: **${
-      songs.length
-    }** songs`,
-  })
 }
 
 const execute = async interaction => {

@@ -4,10 +4,19 @@ export default {
   activityType: 'PLAYING',
   activity: process.env.BOT_ACTIVITY,
   yt_api_key: process.env.YOUTUBE_API_KEY,
-  yt_uri: "https://www.googleapis.com/youtube/v3/",
-  yt_generic: "https://www.youtube.com/watch?v=",
-  spotify_uri: "https://api.spotify.com/v1/",
+  yt_uri: 'https://www.googleapis.com/youtube/v3/',
+  yt_generic: 'https://www.youtube.com/watch?v=',
+  spotify_uri: 'https://api.spotify.com/v1/',
   spotify_client_id: process.env.SPOTIFY_CLIENT_ID,
   spotify_client_secret: process.env.SPOTIFY_CLIENT_SECRET,
-  spotify_base64_token: process.env.SPOTIFY_BASE64_TOKEN
+  spotify_base64_token: process.env.SPOTIFY_BASE64_TOKEN,
+  audiostreamConfig: {
+    quality: 'highestaudio',
+    filter: 'audioonly',
+    highWaterMark: 36000000,
+    opusEncoded: true,
+    fmt: 'mp3',
+    encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
+    dlChunkSize: 0,
+  },
 }

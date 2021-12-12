@@ -3,10 +3,10 @@ import {
   NoSubscriberBehavior,
   AudioPlayerStatus,
   createAudioResource,
-  joinVoiceChannel
+  joinVoiceChannel,
 } from '@discordjs/voice'
 import ytdl from 'ytdl-core'
-import {getVideoInfo} from './helpers.js'
+import { getVideoInfo } from './helpers.js'
 import config from '../config.js'
 
 export let isPlaying = false
@@ -16,31 +16,28 @@ export let Queue = []
 
 export const playSong = async (interaction, track) => {
   console.log('playSong', track)
-  
-  // Creating channel connection
-  const voiceChannel = interaction.member.voice.channel
-  const connection = joinVoiceChannel({
-    channelId: voiceChannel.id,
-    guildId: voiceChannel.guild.id,
-    adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-  })
-  connection.subscribe(Player)
-  // Creating channel connection
 
-  const playMessage = `▶ | Started playing: **${await getVideoInfo(
-    track
-  )}** in **${voiceChannel.name}**!`
-  await interaction.reply(playMessage)
+  if (interaction) {
+    // Creating channel connection
+    const voiceChannel = interaction.member.voice.channel
+    const connection = joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId: voiceChannel.guild.id,
+      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+    })
+    connection.subscribe(Player)
+    // Creating channel connection
 
-  const audioStream = ytdl(config.yt_generic + track.id.videoId, {
-    quality: 'highestaudio',
-    filter: 'audioonly',
-    highWaterMark: 36000000,
-    opusEncoded: true,
-    fmt: 'mp3',
-    encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
-    dlChunkSize: 0,
-  })
+    const playMessage = `▶ | Started playing: **${await getVideoInfo(
+      track
+    )}** in **${voiceChannel.name}**!`
+    await interaction.reply(playMessage)
+  }
+
+  const audioStream = ytdl(
+    config.yt_generic + track.id.videoId,
+    config.audiostreamConfig
+  )
 
   Player.play(createAudioResource(audioStream))
 
@@ -70,8 +67,7 @@ export const init = () => {
   Player.on(AudioPlayerStatus.Idle, () => {
     console.log('Player went Idle', Queue)
     if (Queue.length > 0) {
-      playSong(Queue[0])
-      Queue.shift()
+      playSong(null, Queue.shift())
     }
     isPlaying = false
     isPaused = false
@@ -93,7 +89,7 @@ export const init = () => {
   Player.on('error', error => {
     console.error(error.message)
     if (Queue[0]) {
-      playSong(Queue.shift())
+      playSong(null, Queue.shift())
     }
   })
 }

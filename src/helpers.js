@@ -39,6 +39,10 @@ const getSpotifyToken = async () => {
 export const getSongs = async interaction => {
   const query = interaction.options.get('query').value || 'Default query'
 
+  // Dev playlists
+  // https://open.spotify.com/playlist/73Y4s2rMeug9gX0jWEBqvh?si=2f125daa45f04ee0
+  // 
+
   const spotifyPlaylist = await getSpotifyPlaylist(query)
   console.log('spotifyPlaylist', spotifyPlaylist)
   if (spotifyPlaylist) return spotifyPlaylist
@@ -67,7 +71,7 @@ export const getSpotifyPlaylist = async query => {
   try {
     return await axios
       .get(
-        `${spotify_uri}playlists/${spotifyListId}?fields=tracks.items(track(name%2C%20artists.name))`,
+        `${spotify_uri}playlists/${spotifyListId}?fields=tracks.items(track(name,artists.name))`,
         {
           headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
         }
@@ -79,6 +83,7 @@ export const getSpotifyPlaylist = async query => {
       })
   } catch (error) {
     console.log(error)
+    return
   }
 }
 
@@ -99,7 +104,7 @@ export const getSpotifySong = async query => {
 }
 
 export const getYoutubePlaylist = async query => {
-  const pattern = /.+youtube.com\/watch\?v=.+&list=(.+)/
+  const pattern = /.+youtube.com\/.+[&|?]list=(.+)/
   const youtubeListId = query.match(pattern) ? query.replace(pattern, '$1') : ''
 
   if (!youtubeListId) return

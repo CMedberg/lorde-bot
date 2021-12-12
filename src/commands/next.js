@@ -1,21 +1,19 @@
 import { Queue, playSong } from '../Player.js'
 import { getVideoInfo, validateInteraction } from '../helpers.js'
 
+const next = async (interaction) => {
+  const nextSong = Queue.shift()
+
+  if (nextSong) {
+    playSong(interaction, nextSong)
+  } else {
+    return interaction.reply({ content: `🛑 | End of the line` })
+  }
+}
+
 const execute = async interaction => {
   try {
-    validateInteraction(interaction, async () => {
-      const nextSong = Queue.shift()
-
-      if (nextSong) {
-        playSong(interaction, nextSong)
-
-        return interaction.reply({
-          content: `⏩ | Next track ${await getVideoInfo(nextSong)}`,
-        })
-      } else {
-        return interaction.reply({ content: `🛑 | End of the line` })
-      }
-    })
+    validateInteraction(interaction, () => next(interaction))
   } catch (error) {
     console.log(error)
     interaction.reply({
