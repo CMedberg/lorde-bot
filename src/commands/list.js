@@ -4,6 +4,8 @@ import { getVideoInfo, validateInteraction } from '../helpers.js'
 const execute = async interaction => {
   try {
     validateInteraction(interaction, async () => {
+      console.log('Queue', Queue)
+      
       if (Queue.length < 1) {
         await interaction.reply('```And nobody came...```')
         return

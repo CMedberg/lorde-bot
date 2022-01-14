@@ -3,9 +3,10 @@ import { searchVideo, validateInteraction, getSongs } from '../helpers.js'
 
 const queue = async interaction => {
   const songs = await getSongs(interaction)
-  await Promise.all(
-    songs.map(async song => Queue.push(await searchVideo(song)))
-  )
+
+  for (const song of songs) {
+    Queue.push(await searchVideo(song))
+  }
 
   if (!isPlaying) {
     playSong(interaction, Queue.shift())
