@@ -14,6 +14,8 @@ export const client = await new Client({
   ],
 })
 
+export let Channel = {}
+
 client.commands = new Collection()
 commands.forEach(command => {
   client.commands.set(command.name, command)
@@ -29,6 +31,7 @@ client.on('messageCreate', async message => {
     await message.guild.commands
       .set(client.commands)
       .then(() => {
+        Channel = message.channel
         message.reply('Deployed!')
       })
       .catch(err => {
@@ -44,6 +47,7 @@ client.on('interactionCreate', async interaction => {
   const command = client.commands.get(interaction.commandName.toLowerCase())
 
   try {
+    Channel = interaction.channel
     command.execute(interaction, client)
   } catch (error) {
     console.error(error)

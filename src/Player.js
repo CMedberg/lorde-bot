@@ -8,18 +8,24 @@ import {
 import ytdl from 'ytdl-core'
 import { getVideoInfo } from './helpers.js'
 import config from '../config.js'
+import { Channel } from '../index.js'
 
+export let voiceChannel = {}
 export let isPlaying = false
 export let isPaused = false
 export let Player = {}
 export let Queue = []
+
+const playMessage = async (track) => `▶ | Started playing: **${await getVideoInfo(
+  track
+)}** in **${voiceChannel.name}**!`
 
 export const playSong = async (interaction, track) => {
   console.log('playSong', track)
 
   if (interaction) {
     // Creating channel connection
-    const voiceChannel = interaction.member.voice.channel
+    voiceChannel = interaction.member.voice.channel
     const connection = joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId: voiceChannel.guild.id,
@@ -28,10 +34,7 @@ export const playSong = async (interaction, track) => {
     connection.subscribe(Player)
     // Creating channel connection
 
-    const playMessage = `▶ | Started playing: **${await getVideoInfo(
-      track
-    )}** in **${voiceChannel.name}**!`
-    await interaction.reply(playMessage)
+    await interaction.reply(await playMessage(track))
   }
 
   const audioStream = ytdl(
@@ -64,10 +67,12 @@ export const init = () => {
     isPlaying = true
     isPaused = false
   })
-  Player.on(AudioPlayerStatus.Idle, () => {
+  Player.on(AudioPlayerStatus.Idle, async () => {
     console.log('Player went Idle', Queue)
     if (Queue.length > 0) {
-      playSong(null, Queue.shift())
+      const track = Queue.shift()
+      Channel.send(await playMessage(track))
+      playSong(null, track)
     }
     isPlaying = false
     isPaused = false
