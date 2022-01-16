@@ -11,8 +11,9 @@ const queue = async interaction => {
   if (!isPlaying) {
     playSong(interaction, Queue.shift())
   } else {
-    const isList = tracks.length > 1
-    const msg = isList ? `**${tracks.length}** songs` : await getVideoInfo(tracks[0])
+    const isList = Queue.length > 1
+    console.log('tracks', Queue)
+    const msg = isList ? `**${Queue.length}** songs` : await getVideoInfo(Queue[0])
 
     interaction.reply({
       content: `🎶 | **${interaction.member.displayName}** is queueing: ${msg}`,
