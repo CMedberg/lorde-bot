@@ -1,18 +1,21 @@
 import { isPlaying, Queue, playSong } from '../Player.js'
-import { searchVideo, validateInteraction, getSongs } from '../helpers.js'
+import { searchVideo, validateInteraction, getSongs, getVideoInfo } from '../helpers.js'
 
 const queue = async interaction => {
-  const songs = await getSongs(interaction)
+  const tracks = await getSongs(interaction)
 
-  for (const song of songs) {
-    Queue.push(await searchVideo(song))
+  for (const track of tracks) {
+    Queue.push(await searchVideo(track))
   }
 
   if (!isPlaying) {
     playSong(interaction, Queue.shift())
   } else {
+    const isList = tracks.length > 1
+    const msg = isList ? `**${tracks.length}** songs` : await getVideoInfo(tracks[0])
+
     interaction.reply({
-      content: `🎶 | **${interaction.member.displayName}** is queueing: **${songs.length}** songs`,
+      content: `🎶 | **${interaction.member.displayName}** is queueing: ${msg}`,
     })
   }
 }
