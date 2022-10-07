@@ -16,9 +16,10 @@ export let isPaused = false
 export let Player = {}
 export let Queue = []
 
-const playMessage = async (track) => `▶ | Started playing: **${await getVideoInfo(
-  track
-)}** in **${voiceChannel.name}**!`
+const playMessage = async (track) =>
+  `▶ | Started playing: **${await getVideoInfo(track)}** in **${
+    voiceChannel.name
+  }**!`
 
 export const playSong = async (interaction, track) => {
   console.log('playSong', track)
@@ -33,8 +34,11 @@ export const playSong = async (interaction, track) => {
     })
     connection.subscribe(Player)
     // Creating channel connection
-
-    await interaction.reply(await playMessage(track))
+    // console.log('interaction', interaction)
+    await interaction.reply({
+      content: await playMessage(track),
+      fetchReply: true,
+    })
   }
 
   const audioStream = ytdl(
@@ -46,7 +50,7 @@ export const playSong = async (interaction, track) => {
 
   const funcao = audioStream.listeners('error')[0]
   audioStream.removeListener('error', funcao)
-  audioStream.on('error', err => {
+  audioStream.on('error', (err) => {
     try {
       throw new Error()
     } catch {
@@ -91,7 +95,7 @@ export const init = () => {
     console.log('Player is Buffering', Queue)
     isPlaying = false
   })
-  Player.on('error', error => {
+  Player.on('error', (error) => {
     console.error(error.message)
     if (Queue[0]) {
       playSong(null, Queue.shift())

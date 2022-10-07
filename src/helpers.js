@@ -28,7 +28,7 @@ const getSpotifyToken = async () => {
           },
         }
       )
-      .then(res => {
+      .then((res) => {
         return res.data.access_token
       })
   } catch (error) {
@@ -36,12 +36,12 @@ const getSpotifyToken = async () => {
   }
 }
 
-export const getSongs = async interaction => {
+export const getSongs = async (interaction) => {
   const query = interaction.options.get('query').value || 'Default query'
 
   // Dev playlists
   // https://open.spotify.com/playlist/73Y4s2rMeug9gX0jWEBqvh?si=2f125daa45f04ee0
-  // 
+  //
 
   const spotifyPlaylist = await getSpotifyPlaylist(query)
   console.log('spotifyPlaylist', spotifyPlaylist)
@@ -62,7 +62,7 @@ export const getSongs = async interaction => {
   return ['Fire inc Nowhere fast']
 }
 
-export const getSpotifyPlaylist = async query => {
+export const getSpotifyPlaylist = async (query) => {
   const pattern = /https.+spotify.com\/playlist\/(.+?)[\?|\/].+/
   const spotifyListId = query.match(pattern) ? query.replace(pattern, '$1') : ''
 
@@ -76,7 +76,7 @@ export const getSpotifyPlaylist = async query => {
           headers: { Authorization: `Bearer ${await getSpotifyToken()}` },
         }
       )
-      .then(async res => {
+      .then(async (res) => {
         return res.data.tracks.items.map(
           ({ track }) => `${track.artists[0].name} ${track.name}`
         )
@@ -87,7 +87,7 @@ export const getSpotifyPlaylist = async query => {
   }
 }
 
-export const getSpotifySong = async query => {
+export const getSpotifySong = async (query) => {
   const pattern = /.+open.spotify.com\/track\/(.+)\?si=.+/
   const spotifyId = query.match(pattern) ? query.replace(pattern, '$1') : ''
   if (!spotifyId) return
@@ -103,7 +103,7 @@ export const getSpotifySong = async query => {
   }
 }
 
-export const getYoutubePlaylist = async query => {
+export const getYoutubePlaylist = async (query) => {
   const pattern = /.+youtube.com\/.+[&|?]list=(.+)/
   const youtubeListId = query.match(pattern) ? query.replace(pattern, '$1') : ''
 
@@ -117,26 +117,31 @@ export const getYoutubePlaylist = async query => {
         `${yt_uri}playlistItems?part=snippet%2CcontentDetails&maxResults=25&playlistId=${youtubeListId}&key=${yt_api_key}`
       )
       .then(async ({ data }) => {
-        return data.items.map(video => video.snippet.title)
+        return data.items.map((video) => video.snippet.title)
       })
   } catch (error) {
     console.log(error)
   }
 }
 
-export const searchVideo = async query => {
+export const searchVideo = async (query) => {
   console.log('searchQuery', query)
   const url = `${yt_uri}search?part=id&type=video&q=${encodeURIComponent(
     query
   )}&key=${yt_api_key}`
 
-  return await axios.get(url).then(res => {
-    if (!res.data.items[0]) return
-    return res.data.items[0]
-  })
+  return await axios
+    .get(url)
+    .then((res) => {
+      if (!res.data.items[0]) return
+      return res.data.items[0]
+    })
+    .catch(function (error) {
+      console.log(error.toJSON())
+    })
 }
 
-export const getVideoInfo = async video => {
+export const getVideoInfo = async (video) => {
   let info = await ytdl.getBasicInfo(video.id.videoId)
   console.log('Getting info', info.player_response.videoDetails.title)
   return info.player_response.videoDetails.title

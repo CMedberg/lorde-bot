@@ -17,14 +17,13 @@ export const client = await new Client({
 export let Channel = {}
 
 client.commands = new Collection()
-commands.forEach(command => {
+commands.forEach((command) => {
   client.commands.set(command.name, command)
 })
-console.log(client.commands)
 
 InitPlayer()
 
-client.on('messageCreate', async message => {
+client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return
   if (!client.application?.owner) await client.application?.fetch()
   if (message.content === '!deploy') {
@@ -34,7 +33,7 @@ client.on('messageCreate', async message => {
         Channel = message.channel
         message.reply('Deployed!')
       })
-      .catch(err => {
+      .catch((err) => {
         message.reply(
           'Could not deploy commands! Make sure the bot has the application.commands permission!'
         )
@@ -43,9 +42,9 @@ client.on('messageCreate', async message => {
   }
 })
 
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', async (interaction) => {
   const command = client.commands.get(interaction.commandName.toLowerCase())
-
+  
   try {
     Channel = interaction.channel
     command.execute(interaction, client)
