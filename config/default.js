@@ -1,6 +1,8 @@
 export default {
   prefix: '!',
   token: process.env.DISCORD_TOKEN,
+  clientId: process.env.DISCORD_CLIENT_ID,
+  guildId: process.env.DISCORD_GUILD_ID,
   activityType: 'PLAYING',
   activity: process.env.BOT_ACTIVITY,
   yt_api_key: process.env.YOUTUBE_API_KEY,

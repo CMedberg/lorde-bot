@@ -1,6 +1,6 @@
 import axios from 'axios'
 import ytdl from 'ytdl-core'
-import config from '../config.js'
+import config from '../config/default.js'
 const {
   yt_uri,
   yt_api_key,
@@ -22,6 +22,7 @@ const getSpotifyToken = async () => {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
+            // eslint-disable-next-line no-undef
             Authorization: `Basic ${Buffer.from(
               `${spotify_client_id}:${spotify_client_secret}`
             ).toString('base64')}`,
@@ -36,8 +37,34 @@ const getSpotifyToken = async () => {
   }
 }
 
+export const getSong = async (interaction) => {
+  const query = interaction.options.getString('input') || 'Default input'
+
+  // Dev playlists
+  // https://open.spotify.com/playlist/73Y4s2rMeug9gX0jWEBqvh?si=2f125daa45f04ee0
+  //
+
+  const spotifyPlaylist = await getSpotifyPlaylist(query)
+  console.log('spotifyPlaylist', spotifyPlaylist)
+  if (spotifyPlaylist) return spotifyPlaylist
+
+  const spotifySong = await getSpotifySong(query)
+  console.log('spotifySong', spotifySong)
+  if (spotifySong) return spotifySong
+
+  const youtubePlaylist = await getYoutubePlaylist(query)
+  console.log('youtubePlaylist', youtubePlaylist)
+  if (youtubePlaylist) return youtubePlaylist
+
+  const youtubeSong = await searchVideo(query)
+  console.log('youtubeSong', youtubeSong)
+  if (youtubeSong) return [youtubeSong.id.videoId]
+
+  return ['Fire inc Nowhere fast']
+}
+
 export const getSongs = async (interaction) => {
-  const query = interaction.options.get('query').value || 'Default query'
+  const query = interaction.options.getString('input') || 'Default query'
 
   // Dev playlists
   // https://open.spotify.com/playlist/73Y4s2rMeug9gX0jWEBqvh?si=2f125daa45f04ee0

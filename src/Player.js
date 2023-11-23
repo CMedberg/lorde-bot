@@ -1,104 +1,72 @@
-import {
-  createAudioPlayer,
-  NoSubscriberBehavior,
-  AudioPlayerStatus,
-  createAudioResource,
-  joinVoiceChannel,
-} from '@discordjs/voice'
-import ytdl from 'ytdl-core'
-import { getVideoInfo } from './helpers.js'
-import config from '../config.js'
-import { Channel } from '../index.js'
+// import { Client, VoiceChannel, Intents } from 'discord.js';
+// import {
+//     joinVoiceChannel,
+//     createAudioPlayer,
+//     createAudioResource,
+//     entersState,
+//     StreamType,
+//     AudioPlayerStatus,
+//     VoiceConnectionStatus,
+// } from '@discordjs/voice';
+// import { createDiscordJSAdapter } from './adapter';
+// import { client } from '..';
 
-export let voiceChannel = {}
-export let isPlaying = false
-export let isPaused = false
-export let Player = {}
-export let Queue = []
+// const player = createAudioPlayer();
 
-const playMessage = async (track) =>
-  `▶ | Started playing: **${await getVideoInfo(track)}** in **${
-    voiceChannel.name
-  }**!`
+// function playSong() {
+//     const resource = createAudioResource('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', {
+//         inputType: StreamType.Arbitrary,
+//     });
 
-export const playSong = async (interaction, track) => {
-  console.log('playSong', track)
+//     player.play(resource);
 
-  if (interaction) {
-    // Creating channel connection
-    voiceChannel = interaction.member.voice.channel
-    const connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guild.id,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    })
-    connection.subscribe(Player)
-    // Creating channel connection
-    // console.log('interaction', interaction)
-    await interaction.reply({
-      content: await playMessage(track),
-      fetchReply: true,
-    })
-  }
+//     return entersState(player, AudioPlayerStatus.Playing, 5000);
+// }
 
-  const audioStream = ytdl(
-    config.yt_generic + track.id.videoId,
-    config.audiostreamConfig
-  )
+// async function connectToChannel(channel) {
+//     const connection = joinVoiceChannel({
+//         channelId: channel.id,
+//         guildId: channel.guild.id,
+//         adapterCreator: createDiscordJSAdapter(channel),
+//     });
 
-  Player.play(createAudioResource(audioStream))
+//     try {
+//         await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
+//         return connection;
+//     } catch (error) {
+//         connection.destroy();
+//         throw error;
+//     }
+// }
 
-  const funcao = audioStream.listeners('error')[0]
-  audioStream.removeListener('error', funcao)
-  audioStream.on('error', (err) => {
-    try {
-      throw new Error()
-    } catch {
-      audioStream.destroy()
-      console.log(err)
-    }
-  })
-}
 
-export const init = () => {
-  Player = createAudioPlayer({
-    behaviors: {
-      noSubscriber: NoSubscriberBehavior.Pause,
-    },
-  })
-  Player.on(AudioPlayerStatus.Playing, () => {
-    console.log('Player began to Play', Queue)
-    isPlaying = true
-    isPaused = false
-  })
-  Player.on(AudioPlayerStatus.Idle, async () => {
-    console.log('Player went Idle', Queue)
-    if (Queue.length > 0) {
-      const track = Queue.shift()
-      Channel.send(await playMessage(track))
-      playSong(null, track)
-    }
-    isPlaying = false
-    isPaused = false
-  })
-  Player.on(AudioPlayerStatus.Paused, () => {
-    console.log('Player was Paused', Queue)
-    isPlaying = false
-    isPaused = true
-  })
-  Player.on(AudioPlayerStatus.AutoPaused, () => {
-    console.log('Player was AutoPaused', Queue)
-    isPlaying = false
-    isPaused = true
-  })
-  Player.on(AudioPlayerStatus.Buffering, () => {
-    console.log('Player is Buffering', Queue)
-    isPlaying = false
-  })
-  Player.on('error', (error) => {
-    console.error(error.message)
-    if (Queue[0]) {
-      playSong(null, Queue.shift())
-    }
-  })
-}
+// client.on('ready', async () => {
+//     console.log('Discord.js client is ready!');
+
+//     try {
+//         await playSong();
+//         console.log('Song is ready to play!');
+//     } catch (error) {
+//         console.error(error);
+//     }
+// });
+
+// client.on('message', async (message) => {
+//     if (!message.guild) return;
+
+//     if (message.content === '-join') {
+//         const channel = message.member?.voice.channel;
+
+//         if (channel) {
+//             try {
+//                 const connection = await connectToChannel(channel);
+//                 connection.subscribe(player);
+//                 message.reply('Playing now!');
+//             } catch (error) {
+//                 console.error(error);
+//             }
+//         } else {
+//             message.reply('Join a voice channel then try again!');
+//         }
+//     }
+// });

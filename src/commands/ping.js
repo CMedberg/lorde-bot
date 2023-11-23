@@ -1,25 +1,10 @@
-export default {
-  name: 'ping',
-  description: 'Play some ping-pong!',
-  options: [
-    {
-      name: 'query',
-      type: 3,
-      description: 'It doesnt matter what you put here',
-      required: true,
-    },
-  ],
-  async execute(interaction) {
-    try {
-      const query = interaction.options.get('query').value || 'Default query'
+import { SlashCommandBuilder } from "discord.js"
 
-      await interaction.reply({ content: `Ping! ${query}`, ephemeral: true })
-    } catch (error) {
-      console.log(error)
-      interaction.reply({
-        content:
-          'There was an error trying to execute that command: ' + error.message,
-      })
-    }
+export default {
+  data: new SlashCommandBuilder()
+		.setName('ping')
+		.setDescription('Replies with Pong!'),
+  async execute(interaction) {
+    await interaction.reply('Pong!');
   },
 }

@@ -4,8 +4,8 @@
   "description": "Discord bot",
   "main": "index.js",
   "scripts": {
-    "randy": "node -r dotenv/config index.js dotenv_config_path=env/.randy.env",
-    "ernst": "node -r dotenv/config index.js dotenv_config_path=env/.ernst.env",
+    "randy": "nodemon -r dotenv/config index.js dotenv_config_path=env/.randy.env",
+    "ernst": "nodemon -r dotenv/config index.js dotenv_config_path=env/.ernst.env",
     "start-apps": "pm2 start --name randy \"npm run randy\" && pm2 start --name ernst \"npm run ernst\"",
     "restart-apps": "pm2 delete 0 && pm2 delete 1 && npm run start-apps",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,13 +13,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/voice": "^0.6.0",
-    "axios": "^0.23.0",
-    "discord.js": "^13.2.0",
-    "dotenv": "^10.0.0",
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/voice": "^0.16.1",
+    "automake": "^0.1.4",
+    "axios": "^1.6.2",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "ffmpeg-static": "^5.2.0",
+    "libsodium-wrappers": "^0.7.13",
+    "opusscript": "^0.0.8",
     "qs": "^6.10.1",
+    "sodium-native": "^4.0.4",
     "tweetnacl": "^1.0.3",
     "ytdl-core": "^4.10.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^8.54.0"
+  }
 }

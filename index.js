@@ -1,61 +1,60 @@
-import { Client, Intents, Collection } from 'discord.js'
-import { init as InitPlayer, Player } from './src/Player.js'
+// import { init as InitPlayer } from './src/Player.js'
 import commands from './src/commands/index.js'
-import config from './config.js'
+
+import { Client, Collection, Events, GatewayIntentBits } from 'discord.js'
+import config from './config/default.js'
 const { token } = config
 
-// https://discord.com/oauth2/authorize?client_id=898629597745258497&permissions=105229920256&scope=bot%20applications.commands
-
-export const client = await new Client({
-  intents: [
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILDS,
-  ],
+export const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages],
 })
 
-export let Channel = {}
-
+// @ts-ignore
 client.commands = new Collection()
-commands.forEach((command) => {
-  client.commands.set(command.name, command)
-})
 
-InitPlayer()
-
-client.on('messageCreate', async (message) => {
-  if (message.author.bot || !message.guild) return
-  if (!client.application?.owner) await client.application?.fetch()
-  if (message.content === '!deploy') {
-    await message.guild.commands
-      .set(client.commands)
-      .then(() => {
-        Channel = message.channel
-        message.reply('Deployed!')
-      })
-      .catch((err) => {
-        message.reply(
-          'Could not deploy commands! Make sure the bot has the application.commands permission!'
-        )
-        console.error(err)
-      })
+commands.forEach(command => {
+  const missingProperty = !('data' in command) || !('execute' in command)
+  if (missingProperty) {
+    // @ts-ignore
+    console.log(`${command.data.name} is missing a required property.`)
+    return
   }
+
+  // @ts-ignore
+  client.commands.set(command.data.name, command)
 })
 
-client.on('interactionCreate', async (interaction) => {
-  const command = client.commands.get(interaction.commandName.toLowerCase())
-  
+client.once(Events.ClientReady, c => {
+  console.log(`Ready! Logged in as ${c.user.tag}`)
+})
+
+client.login(token)
+
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return
+
+  // @ts-ignore
+  const command = interaction.client.commands.get(interaction.commandName)
+
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`)
+    return
+  }
+
   try {
-    Channel = interaction.channel
-    command.execute(interaction, client)
+    await command.execute(interaction)
   } catch (error) {
     console.error(error)
-    interaction.reply({
-      content: 'There was an error trying to execute that command!',
-    })
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        content: 'There was an error while executing this command!',
+        ephemeral: true,
+      })
+    } else {
+      await interaction.reply({
+        content: 'There was an error while executing this command!',
+        ephemeral: true,
+      })
+    }
   }
 })
-
-await client.login(token)
-client.user.setActivity({ name: config.activity, type: config.activityType })
-console.log('Bot ID ' + client.user.id)
